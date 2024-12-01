@@ -4,7 +4,6 @@ import React, { useState } from "react";
 
 export default function NewDataset() {
   const [csvFile, setCsvFile] = useState<File | null>(null);
-  const [csvData, setCsvData] = useState<string[][]>([]);
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [dataType, setDataType] = useState<string>("");
@@ -14,27 +13,46 @@ export default function NewDataset() {
     const file = event.target.files?.[0];
     if (file) {
       setCsvFile(file);
-
-      // Read the CSV file
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const text = e.target?.result as string;
-        const rows = text.split("\n").map((row) => row.split(","));
-        setCsvData(rows);
-      };
-      reader.readAsText(file);
     }
   };
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    console.log("Title:", title);
-    console.log("Description:", description);
-    console.log("Data Type:", dataType);
-    console.log("Tags:", tags);
-    console.log("Uploaded File:", csvFile);
-    console.log("CSV Data:", csvData);
-    alert("Dataset Submitted!");
+
+    if (!csvFile) {
+      alert("Please upload a CSV file.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", csvFile);
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("dataType", dataType);
+    formData.append("price", "2"); // Static price for now, adjust as necessary
+    formData.append("tgas", tags);
+
+    try {
+      const response = await fetch(
+        "https://unfold-hackathon.onrender.com/uploadDataset?walletAddress=0x1234567890abcdef1234567890abcdef12345678",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      if (response.ok) {
+        const responseData = await response.json();
+        console.log("Dataset uploaded successfully:", responseData);
+        alert("Dataset submitted successfully!");
+      } else {
+        console.error("Failed to upload dataset:", response);
+        alert("Failed to upload dataset.");
+      }
+    } catch (error) {
+      console.error("Error uploading dataset:", error);
+      alert("Error uploading dataset.");
+    }
   };
 
   return (
@@ -42,10 +60,16 @@ export default function NewDataset() {
       <h1 className="text-2xl font-bold text-black text-center mb-6">
         Create a New Dataset Repository
       </h1>
-      <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 rounded-lg shadow">
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-6 bg-white p-6 rounded-lg shadow"
+      >
         {/* Title Input */}
         <div>
-          <label htmlFor="title" className="block text-sm font-medium text-black">
+          <label
+            htmlFor="title"
+            className="block text-sm font-medium text-black"
+          >
             Dataset Title
           </label>
           <input
@@ -61,7 +85,10 @@ export default function NewDataset() {
 
         {/* Description Input */}
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-black">
+          <label
+            htmlFor="description"
+            className="block text-sm font-medium text-black"
+          >
             Dataset Description
           </label>
           <textarea
@@ -75,9 +102,12 @@ export default function NewDataset() {
           />
         </div>
 
-        {/* Data Type (ENUM) */}
+        {/* Data Type Input */}
         <div>
-          <label htmlFor="data-type" className="block text-sm font-medium text-black">
+          <label
+            htmlFor="data-type"
+            className="block text-sm font-medium text-black"
+          >
             Data Type
           </label>
           <select
@@ -94,12 +124,16 @@ export default function NewDataset() {
             <option value="Categorical">Categorical</option>
             <option value="Text">Text</option>
             <option value="Image">Image</option>
+            <option value="Unstructured">Unstructured</option>
           </select>
         </div>
 
         {/* Tags Input */}
         <div>
-          <label htmlFor="tags" className="block text-sm font-medium text-black">
+          <label
+            htmlFor="tags"
+            className="block text-sm font-medium text-black"
+          >
             Tags (comma-separated)
           </label>
           <input
@@ -114,7 +148,10 @@ export default function NewDataset() {
 
         {/* File Upload */}
         <div>
-          <label htmlFor="file-upload" className="block text-sm font-medium text-black">
+          <label
+            htmlFor="file-upload"
+            className="block text-sm font-medium text-black"
+          >
             Upload Dataset (CSV)
           </label>
           <input
@@ -135,43 +172,6 @@ export default function NewDataset() {
           Create Dataset
         </button>
       </form>
-
-      {/* CSV Preview */}
-      {csvData.length > 0 && (
-        <div className="mt-10">
-          <h2 className="text-lg font-bold text-black">CSV Preview</h2>
-          <div className="overflow-x-auto mt-4">
-            <table className="table-auto w-full border-collapse border border-gray-200">
-              <thead>
-                <tr className="bg-gray-50">
-                  {csvData[0].map((header, index) => (
-                    <th
-                      key={index}
-                      className="border border-gray-200 px-4 py-2 text-left text-sm font-medium text-black"
-                    >
-                      {header}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {csvData.slice(1).map((row, rowIndex) => (
-                  <tr key={rowIndex} className="even:bg-gray-50">
-                    {row.map((cell, cellIndex) => (
-                      <td
-                        key={cellIndex}
-                        className="border border-gray-200 px-4 py-2 text-sm text-black"
-                      >
-                        {cell}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
     </main>
   );
 }

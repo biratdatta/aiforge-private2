@@ -1,6 +1,6 @@
  
-import Header from '../../components/Header/page'
-import Dataset from '../../components/Dataset/page'
+import Header from '../components/Header/page'
+import Dataset from '../components/Dataset/page'
 
 
 export default function NewDataset(){
