@@ -1,11 +1,11 @@
 import Header from "./components/Header/page";
-import LandingPage from "./components/LandingPage/page";
+import Hero from "./components/Hero/page";
 
 export default function App (){
   return (
     <main>
 <Header/>
-<LandingPage/>
+<Hero/>
     </main>
   )
 }

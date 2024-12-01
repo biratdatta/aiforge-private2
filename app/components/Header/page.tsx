@@ -8,7 +8,7 @@ export default function Header() {
         {/* Logo or Brand Name */}
         <div className="text-lg font-semibold">
           <Link href="/" className="hover:text-gray-300">
-            MyApp
+            AI FORGE
           </Link>
         </div>
 
