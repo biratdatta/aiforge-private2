@@ -28,7 +28,9 @@ export default function ListingPage() {
   useEffect(() => {
     const fetchDatasets = async () => {
       try {
-        const response = await fetch("https://unfold-hackathon.onrender.com/getdatasets");
+        const response = await fetch(
+          "https://unfold-hackathon.onrender.com/getDatasets"
+        );
         if (!response.ok) {
           throw new Error(`Error: ${response.status}`);
         }
@@ -39,8 +41,12 @@ export default function ListingPage() {
         } else {
           throw new Error(data.message || "Failed to fetch datasets.");
         }
-      } catch (error: any) {
-        setError(error.message);
+      } catch (error) {
+        if (error instanceof Error) {
+          setError(error.message);
+        } else {
+          setError("An unknown error occurred.");
+        }
       } finally {
         setLoading(false);
       }
@@ -91,24 +97,26 @@ export default function ListingPage() {
 
   return (
     <main className="max-w-7xl mx-auto py-8 px-4">
-      <h1 className="text-2xl font-bold text-black mb-6 text-center">Listing Page</h1>
+      <h1 className="text-3xl font-extrabold text-center text-gray-800 mb-10">
+        Explore Datasets
+      </h1>
 
       {/* Filters and Search */}
-      <div className="flex flex-wrap items-center gap-4 mb-6">
+      <div className="flex flex-wrap items-center gap-4 mb-8  p-4 rounded-lg shadow">
         {/* Search Input */}
         <input
           type="text"
           placeholder="Search by title..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="flex-1 border rounded-md px-4 py-2 focus:outline-none focus:ring focus:ring-blue-500"
+          className="flex-1 border border-gray-300 rounded-md px-4 py-2 shadow-sm focus:outline-none focus:ring focus:ring-indigo-500"
         />
 
         {/* Tag Filter */}
         <select
           value={selectedTag}
           onChange={(e) => setSelectedTag(e.target.value)}
-          className="border rounded-md px-4 py-2 focus:outline-none focus:ring focus:ring-blue-500"
+          className="border border-gray-300 rounded-md px-4 py-2 shadow-sm focus:outline-none focus:ring focus:ring-indigo-500"
         >
           <option value="">All Tags</option>
           {uniqueTags.map((tag) => (
@@ -122,7 +130,7 @@ export default function ListingPage() {
         <select
           value={selectedDataType}
           onChange={(e) => setSelectedDataType(e.target.value)}
-          className="border rounded-md px-4 py-2 focus:outline-none focus:ring focus:ring-blue-500"
+          className="border border-gray-300 rounded-md px-4 py-2 shadow-sm focus:outline-none focus:ring focus:ring-indigo-500"
         >
           <option value="">All Data Types</option>
           {uniqueDataTypes.map((dataType) => (
@@ -138,23 +146,23 @@ export default function ListingPage() {
         {filteredDatasets.map((dataset) => (
           <div
             key={dataset._id}
-            className="p-4 border rounded-lg shadow hover:shadow-md transition"
+            className="p-6 bg-white rounded-lg shadow hover:shadow-lg transition duration-200"
           >
-            <h2 className="text-lg font-semibold text-black">{dataset.title}</h2>
-            <p className="text-sm text-gray-600 mt-1">{dataset.description}</p>
-            <p className="text-sm text-gray-600 mt-2">
+            <h2 className="text-xl font-semibold text-gray-800">{dataset.title}</h2>
+            <p className="text-sm text-gray-600 mt-2">{dataset.description}</p>
+            <p className="text-sm text-gray-600 mt-4">
               <span className="font-medium">Data Type:</span> {dataset.dataType}
             </p>
-            <p className="text-sm text-gray-600 mt-2">
+            <p className="text-sm text-gray-600">
               <span className="font-medium">Uploader:</span> {dataset.uploader}
             </p>
 
             {/* Tags Section */}
-            <div className="flex flex-wrap items-center gap-2 mt-4">
+            <div className="flex flex-wrap gap-2 mt-4">
               {dataset.tags.map((tag, index) => (
                 <span
                   key={index}
-                  className="text-xs text-blue-500 bg-blue-100 px-2 py-1 rounded-full"
+                  className="text-xs text-indigo-600 bg-indigo-100 px-2 py-1 rounded-full"
                 >
                   {tag}
                 </span>
@@ -163,9 +171,9 @@ export default function ListingPage() {
 
             <Link
               href={`/dataset?id=${dataset._id}`}
-              className="text-blue-500 hover:underline mt-4 block"
+              className="inline-block mt-6 text-indigo-500 font-semibold hover:underline"
             >
-              View Details
+              View Details →
             </Link>
           </div>
         ))}
@@ -173,7 +181,9 @@ export default function ListingPage() {
 
       {/* No Results Message */}
       {filteredDatasets.length === 0 && (
-        <p className="text-center text-gray-500 mt-6">No datasets found matching your criteria.</p>
+        <p className="text-center text-gray-500 mt-6">
+          No datasets found matching your criteria.
+        </p>
       )}
     </main>
   );
