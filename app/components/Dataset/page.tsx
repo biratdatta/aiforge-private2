@@ -1,8 +1,6 @@
-/* eslint-disable */
-
 'use client';
 
-import React, { useEffect, useState, Suspense } from "react";
+import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 interface DatasetDetail {
@@ -26,7 +24,8 @@ export default function ProductPage() {
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [accuracyVote, setAccuracyVote] = useState<string>("");
-  const [previewContent, setPreviewContent] = useState<string | null>(null);
+  const [isBuyModalOpen, setIsBuyModalOpen] = useState<boolean>(false);
+  const [previewContent, setPreviewContent] = useState<React.ReactNode>(null);
 
   useEffect(() => {
     const fetchDatasets = async () => {
@@ -58,66 +57,70 @@ export default function ProductPage() {
     }
   }, [datasetId]);
 
+  const handlePreview = async () => {
+    if (dataset?.storageLocation) {
+      const ipfsURL = dataset.storageLocation.replace("ipfs://", "https://ipfs.io/ipfs/");
 
-  //TODO: Need to check the Preview Feature
+      try {
+        const response = await fetch(ipfsURL);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch file for preview. HTTP status: ${response.status}`);
+        }
 
+        const contentType = response.headers.get("Content-Type");
 
- const handlePreview = async () => {
-  if (dataset?.storageLocation) {
-    const ipfsURL = dataset.storageLocation.replace("ipfs://", "https://ipfs.io/ipfs/");
+        if (contentType === "text/csv") {
+          const csvContent = await response.text();
+          const rows = csvContent.split("\n").map((row) => row.split(","));
 
-    try {
-      console.log("Fetching preview from:", ipfsURL);
+          const headers = rows[0];
+          const bodyRows = rows.slice(1).slice(0, 50); // Limit rows to 50
 
-      const response = await fetch(ipfsURL);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch file for preview. HTTP status: ${response.status}`);
+          // Properly render JSX for the table
+          setPreviewContent(
+            <table className="table-auto border-collapse border border-gray-300 w-full">
+              <thead className="bg-gray-100">
+                <tr>
+                  {headers.map((header, index) => (
+                    <th key={index} className="border border-gray-300 p-2">
+                      {header}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {bodyRows.map((row, rowIndex) => (
+                  <tr key={rowIndex}>
+                    {row.map((cell, cellIndex) => (
+                      <td key={cellIndex} className="border border-gray-300 p-2">
+                        {cell}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          );
+        } else if (contentType?.startsWith("image/")) {
+          setPreviewContent(
+            <img src={ipfsURL} alt="Dataset Preview" className="max-w-full rounded-lg" />
+          );
+        } else if (contentType?.startsWith("text/")) {
+          const textContent = await response.text();
+          setPreviewContent(
+            <pre className="bg-gray-50 p-4 rounded-lg overflow-auto max-h-96">{textContent}</pre>
+          );
+        } else {
+          setPreviewContent("Preview not available for this file type.");
+        }
+      } catch (error) {
+        console.error("Error fetching preview:", error);
+        setPreviewContent("Error loading preview. Please try again later.");
       }
-
-      const contentType = response.headers.get("Content-Type");
-      console.log("Content-Type:", contentType); // Debugging log
-
-      if (contentType?.startsWith("image/")) {
-        // Render as image
-        setPreviewContent(`<img src="${ipfsURL}" alt="Dataset Preview" class="max-w-full rounded-lg" />`);
-      } else if (contentType === "text/csv") {
-        // Render as a table for CSV
-        const csvContent = await response.text();
-        const rows = csvContent.split("\n").map((row) => row.split(","));
-        const renderedCSV = `
-          <table class="table-auto border-collapse border border-gray-300 w-full">
-            <thead class="bg-gray-100">${rows[0]
-              .map((header) => `<th class="border border-gray-300 p-2">${header}</th>`)
-              .join("")}</thead>
-            <tbody>${rows
-              .slice(1)
-              .map(
-                (row) =>
-                  `<tr>${row
-                    .map((cell) => `<td class="border border-gray-300 p-2">${cell}</td>`)
-                    .join("")}</tr>`
-              )
-              .join("")}</tbody>
-          </table>`;
-        setPreviewContent(renderedCSV);
-      } else if (contentType?.startsWith("text/")) {
-        // Render as plain text or JSON
-        const textContent = await response.text();
-        setPreviewContent(`<pre class="bg-gray-50 p-4 rounded-lg overflow-auto max-h-96">${textContent}</pre>`);
-      } else {
-        setPreviewContent("Preview not available for this file type.");
-      }
-    } catch (error) {
-      console.error("Error fetching preview:", error);
-      setPreviewContent("Error loading preview. Please try again later.");
+    } else {
+      setPreviewContent("Storage location is unavailable.");
     }
-  } else {
-    setPreviewContent("Storage location is unavailable.");
-  }
-};
-
-
-
+  };
 
   const handleDownload = async () => {
     if (dataset?.storageLocation) {
@@ -149,6 +152,11 @@ export default function ProductPage() {
     alert(`You voted ${accuracyVote}% for dataset accuracy.`);
     setIsModalOpen(false);
     setAccuracyVote("");
+  };
+
+  const handleBuyConfirm = () => {
+    alert(`You have purchased the dataset: ${dataset?.title}`);
+    setIsBuyModalOpen(false);
   };
 
   if (loading) {
@@ -211,27 +219,33 @@ export default function ProductPage() {
         {/* Right Section */}
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-lg font-semibold text-black mb-4">Actions</h2>
-          <button
-            onClick={handlePreview}
-            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition w-full mb-4"
-          >
-            Preview Dataset
-          </button>
-          <button
-            onClick={handleDownload}
-            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition w-full mb-4"
-          >
-            Download Dataset
-          </button>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition w-full"
-          >
-            Verify Dataset
-          </button>
-          <button className="bg-green-500 text-white mt-5 px-8 py-2 rounded-lg hover:bg-green-600 transition w-full">
-            Buy Dataset
-          </button>
+          {/* Filled and Outlined Button Variations */}
+          <div className="space-y-4">
+            <button
+              onClick={handlePreview}
+              className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition w-full"
+            >
+              Preview Dataset
+            </button>
+            <button
+              onClick={handleDownload}
+              className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition w-full"
+            >
+              Download Dataset
+            </button>
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition w-full"
+            >
+              Verify Dataset
+            </button>
+            <button
+              onClick={() => setIsBuyModalOpen(true)}
+              className="border-2 border-yellow-600 text-yellow-600 hover:bg-yellow-600 hover:text-white px-4 py-2 rounded-lg w-full transition"
+            >
+              Buy Dataset
+            </button>
+          </div>
         </div>
       </div>
 
@@ -239,13 +253,31 @@ export default function ProductPage() {
       {previewContent && (
         <div className="bg-gray-100 p-6 rounded-lg shadow-md mt-6">
           <h2 className="text-lg font-semibold text-black mb-4">Dataset Preview</h2>
-          {dataset.dataType.toLowerCase().includes("image") ? (
-            <img src={previewContent} alt="Dataset Preview" className="max-w-full rounded-lg" />
-          ) : (
-            <pre className="bg-gray-50 p-4 rounded-lg text-sm overflow-auto max-h-96">
-              {previewContent}
-            </pre>
-          )}
+          <div className="overflow-auto">{previewContent}</div>
+        </div>
+      )}
+
+      {/* Buy Dataset Modal */}
+      {isBuyModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-8 rounded-lg shadow-lg w-96">
+            <h2 className="text-lg font-bold mb-4">Confirm Purchase</h2>
+            <p className="text-gray-700 mb-4">Do you want to purchase the dataset: <strong>{dataset?.title}</strong> for ${dataset?.price}?</p>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => setIsBuyModalOpen(false)}
+                className="bg-gray-300 text-black px-4 py-2 rounded-lg hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleBuyConfirm}
+                className="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700"
+              >
+                Confirm Purchase
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

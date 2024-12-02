@@ -97,26 +97,26 @@ export default function ListingPage() {
 
   return (
     <main className="max-w-7xl mx-auto py-8 px-4">
-      <h1 className="text-3xl font-extrabold text-center text-gray-800 mb-10">
+      <h1 className="text-4xl font-extrabold text-center text-gray-900 mb-12">
         Explore Datasets
       </h1>
 
       {/* Filters and Search */}
-      <div className="flex flex-wrap items-center gap-4 mb-8  p-4 rounded-lg shadow">
+      <div className="flex flex-wrap items-center gap-4 mb-8 p-6 rounded-lg shadow-md bg-gray-50">
         {/* Search Input */}
         <input
           type="text"
           placeholder="Search by title..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="flex-1 border border-gray-300 rounded-md px-4 py-2 shadow-sm focus:outline-none focus:ring focus:ring-indigo-500"
+          className="flex-1 border border-gray-300 rounded-lg px-4 py-2 shadow focus:outline-none focus:ring focus:ring-indigo-500"
         />
 
         {/* Tag Filter */}
         <select
           value={selectedTag}
           onChange={(e) => setSelectedTag(e.target.value)}
-          className="border border-gray-300 rounded-md px-4 py-2 shadow-sm focus:outline-none focus:ring focus:ring-indigo-500"
+          className="border border-gray-300 rounded-lg px-4 py-2 shadow focus:outline-none focus:ring focus:ring-indigo-500"
         >
           <option value="">All Tags</option>
           {uniqueTags.map((tag) => (
@@ -130,7 +130,7 @@ export default function ListingPage() {
         <select
           value={selectedDataType}
           onChange={(e) => setSelectedDataType(e.target.value)}
-          className="border border-gray-300 rounded-md px-4 py-2 shadow-sm focus:outline-none focus:ring focus:ring-indigo-500"
+          className="border border-gray-300 rounded-lg px-4 py-2 shadow focus:outline-none focus:ring focus:ring-indigo-500"
         >
           <option value="">All Data Types</option>
           {uniqueDataTypes.map((dataType) => (
@@ -142,13 +142,13 @@ export default function ListingPage() {
       </div>
 
       {/* Dataset List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {filteredDatasets.map((dataset) => (
           <div
             key={dataset._id}
-            className="p-6 bg-white rounded-lg shadow hover:shadow-lg transition duration-200"
+            className="p-6 bg-white rounded-lg shadow-lg hover:shadow-2xl transition duration-300"
           >
-            <h2 className="text-xl font-semibold text-gray-800">{dataset.title}</h2>
+            <h2 className="text-2xl font-bold text-gray-800">{dataset.title}</h2>
             <p className="text-sm text-gray-600 mt-2">{dataset.description}</p>
             <p className="text-sm text-gray-600 mt-4">
               <span className="font-medium">Data Type:</span> {dataset.dataType}
@@ -162,7 +162,7 @@ export default function ListingPage() {
               {dataset.tags.map((tag, index) => (
                 <span
                   key={index}
-                  className="text-xs text-indigo-600 bg-indigo-100 px-2 py-1 rounded-full"
+                  className="text-xs text-gray-800 bg-gray-200 px-3 py-1 rounded-full font-medium"
                 >
                   {tag}
                 </span>
@@ -171,7 +171,7 @@ export default function ListingPage() {
 
             <Link
               href={`/dataset?id=${dataset._id}`}
-              className="inline-block mt-6 text-indigo-500 font-semibold hover:underline"
+              className="inline-block mt-6 text-indigo-600 font-semibold hover:underline"
             >
               View Details →
             </Link>
