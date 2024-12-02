@@ -6,7 +6,7 @@ export default function NewDataset() {
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
-  const [dataType, setDataType] = useState<string>("unstructured");
+  const [dataType, setDataType] = useState<string>("unstructured"); 
   const [tags, setTags] = useState<string>("");
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -24,24 +24,52 @@ export default function NewDataset() {
       return;
     }
 
-    // Your submission logic here
-    alert("Dataset submitted successfully!");
+    const formData = new FormData();
+    formData.append("file", csvFile);
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("dataType", dataType);
+    formData.append("price", "2");  
+    formData.append("tags", tags);
+
+    try {
+      const response = await fetch(
+        "https://unfold-hackathon.onrender.com/uploadDataset?walletAddress=0x1234567890abcdef1234567890abcdef12345678",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      if (response.ok) {
+        const responseData = await response.json();
+        console.log("Dataset uploaded successfully:", responseData);
+        alert("Dataset submitted successfully!");
+      } else {
+        console.error("Failed to upload dataset:", response);
+        const errorMsg = await response.text();
+        alert(`Failed to upload dataset. Error: ${errorMsg}`);
+      }
+    } catch (error) {
+      console.error("Error uploading dataset:", error);
+      alert("An error occurred while uploading the dataset.");
+    }
   };
 
   return (
-    <main className="max-w-5xl mx-auto py-10 px-4 lg:px-8">
-      <h1 className="text-4xl font-extrabold text-center text-gray-800 mb-10">
+    <main className="max-w-4xl mx-auto py-8 px-4">
+      <h1 className="text-2xl font-bold text-black text-center mb-6">
         Create a New Dataset Repository
       </h1>
       <form
         onSubmit={handleSubmit}
-        className="space-y-8 bg-white p-8 rounded-lg shadow-md lg:shadow-lg lg:p-12"
+        className="space-y-6 bg-white p-6 rounded-lg shadow"
       >
         {/* Title Input */}
         <div>
           <label
             htmlFor="title"
-            className="block text-lg font-medium text-gray-700"
+            className="block text-sm font-medium text-black"
           >
             Dataset Title
           </label>
@@ -50,7 +78,7 @@ export default function NewDataset() {
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="mt-2 block w-full px-4 py-2 rounded-md border border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
             placeholder="Enter dataset title"
             required
           />
@@ -60,7 +88,7 @@ export default function NewDataset() {
         <div>
           <label
             htmlFor="description"
-            className="block text-lg font-medium text-gray-700"
+            className="block text-sm font-medium text-black"
           >
             Dataset Description
           </label>
@@ -68,7 +96,7 @@ export default function NewDataset() {
             id="description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="mt-2 block w-full px-4 py-2 rounded-md border border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
             placeholder="Enter a brief description of the dataset"
             rows={4}
             required
@@ -79,7 +107,7 @@ export default function NewDataset() {
         <div>
           <label
             htmlFor="data-type"
-            className="block text-lg font-medium text-gray-700"
+            className="block text-sm font-medium text-black"
           >
             Data Type
           </label>
@@ -87,7 +115,7 @@ export default function NewDataset() {
             id="data-type"
             value={dataType}
             onChange={(e) => setDataType(e.target.value)}
-            className="mt-2 block w-full px-4 py-2 rounded-md border border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
             required
           >
             <option value="" disabled>
@@ -105,7 +133,7 @@ export default function NewDataset() {
         <div>
           <label
             htmlFor="tags"
-            className="block text-lg font-medium text-gray-700"
+            className="block text-sm font-medium text-black"
           >
             Tags (comma-separated)
           </label>
@@ -114,7 +142,7 @@ export default function NewDataset() {
             type="text"
             value={tags}
             onChange={(e) => setTags(e.target.value)}
-            className="mt-2 block w-full px-4 py-2 rounded-md border border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
             placeholder="Enter tags (e.g., AI, Blockchain, CSV)"
           />
         </div>
@@ -123,7 +151,7 @@ export default function NewDataset() {
         <div>
           <label
             htmlFor="file-upload"
-            className="block text-lg font-medium text-gray-700"
+            className="block text-sm font-medium text-black"
           >
             Upload Dataset (CSV)
           </label>
@@ -132,7 +160,7 @@ export default function NewDataset() {
             type="file"
             accept=".csv"
             onChange={handleFileUpload}
-            className="mt-2 block w-full text-gray-800 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-gray-300 file:bg-indigo-100 file:text-indigo-700 hover:file:bg-indigo-200"
+            className="mt-2 block w-full text-sm text-black file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border file:border-gray-300 file:text-sm file:font-semibold file:bg-gray-50 hover:file:bg-gray-100"
             required
           />
         </div>
@@ -140,7 +168,7 @@ export default function NewDataset() {
         {/* Submit Button */}
         <button
           type="submit"
-          className="w-full py-3 px-6 text-lg font-semibold text-white bg-indigo-600 rounded-lg shadow-md hover:bg-indigo-700 transition focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+          className="w-full bg-blue-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-600 transition"
         >
           Create Dataset
         </button>
