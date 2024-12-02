@@ -1,8 +1,6 @@
 'use client'
 
 import Link from "next/link";
-import { stakeToVerify, uploadDataset, purchaseDataset, voteDataset } from "../../utils/contract";
-
 
 export default function Header() {
   return (
@@ -15,36 +13,20 @@ export default function Header() {
           </Link>
         </div>
 
-        {/* Login Button */}
-        <div>
-          <a
-            href="/login"
-            className="text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded transition"
+        {/* Navigation Links */}
+        <div className="space-x-4 flex items-center">
+          <Link
+            href="/newdataset"
+            className="text-sm font-medium text-white hover:text-gray-300 py-2 px-4 rounded transition"
           >
-            Login
-          </a>
-
-           <button onClick={()=>stakeToVerify()}>Stake to Verify</button>
-          <button onClick={() =>
-        uploadDataset(
-            "0.0001", // Price in ETH as a string
-            60, // Size as an integer
-            "https://example.com/metadata.json" // TokenURI as a valid string
-        )
-    }>
-    Upload Dataset
-</button>
-
-            <button
-            onClick={() => purchaseDataset(2, "0.0001")} // Pass datasetId and price as parameters
-            className="text-sm font-medium bg-yellow-600 hover:bg-yellow-700 text-white py-2 px-4 rounded transition"
+            Upload Dataset
+          </Link>
+          <Link
+            href="/listing"
+            className="text-sm font-medium text-white hover:text-gray-300 py-2 px-4 rounded transition"
           >
-            Purchase Dataset
-          </button>
-          <button
-            onClick={() => voteDataset(2, 85)} // Pass datasetId and rating as parameters
-            className="text-sm font-medium bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded transition"
-          > Vote Dataset</button>
+            Explore Marketplace
+          </Link>
         </div>
       </div>
     </header>
